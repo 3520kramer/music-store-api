@@ -1,3 +1,6 @@
+# database connection details
+database/conn_data.php
+
 composer.phar
 /vendor/
 

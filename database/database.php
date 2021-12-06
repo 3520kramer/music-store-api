@@ -1,4 +1,5 @@
 <?php
+include_once __DIR__ . '/conn_data.php';
 
 /*
 https://phpdelusions.net/pdo#query
@@ -16,12 +17,12 @@ class Database
 
   public function connect()
   {
-    $host = 'localhost';
-    $port = 8889;
-    $db = 'chinook_abridged';
-    $user = 'root';
-    $pwd = 'root';
-    $charset = 'utf8mb4';
+    $host = HOST;
+    $port = PORT;
+    $db = DB;
+    $user = USER;
+    $pwd = PWD;
+    $charset = CHARSET;
 
     $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
 
