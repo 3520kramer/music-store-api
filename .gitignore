@@ -1,5 +1,5 @@
-# database connection details
-database/conn_data.php
+# environment vars
+environment/local_vars.php
 
 composer.phar
 /vendor/

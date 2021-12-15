@@ -1,9 +1,18 @@
 <?php
 
 include_once __DIR__ . '/../database/database.php';
+include_once __DIR__ . '/../utilities/image_fetch.php';
 
 class Track extends Database
 {
+  private $image_fetch;
+
+  public function __construct()
+  {
+    parent::__construct();
+    $this->image_fetch = new ImageUrlFetch();
+  }
+
   public function get_all_tracks()
   {
     $query = <<< SQL
@@ -17,11 +26,24 @@ class Track extends Database
   public function get_track($id)
   {
     $query = <<< SQL
-      SELECT * FROM track WHERE Trackid = :id
+      SELECT track.TrackId AS trackId, track.Name AS trackTitle, 
+        track.Composer AS trackComposer, track.Milliseconds AS trackTime, 
+        track.Bytes AS trackSize, track.UnitPrice AS trackPrice, 
+        genre.name AS trackGenre, mediatype.Name AS trackMediaType,
+        album.AlbumId AS albumId, album.Title AS albumName, 
+        artist.ArtistId AS artistId, artist.Name AS artistName
+      FROM track
+      JOIN album USING(AlbumId)
+      JOIN artist USING(ArtistId)
+      JOIN genre USING(GenreId)
+      JOIN mediatype USING(MediaTypeId)
+      WHERE Trackid = :id
     SQL;
 
     $params = ['id' => $id];
     $results = $this->get_one($query, $params);
+    // var_dump($results);
+    $results['imgUrl'] = $this->image_fetch->get_album_art_url($results['albumName'], 'big');
 
     return $results;
   }
@@ -66,5 +88,14 @@ class Track extends Database
     $params = ['id' => $id];
     $is_success = $this->delete($query, $params);
     return $is_success;
+  }
+
+  private function add_image_urls(array $array): array
+  {
+    $array = array_map(function ($result) use ($array){
+      $result = $this->image_fetch->get_album_art_url($array['albumName']);
+      return $result;
+    }, $array);
+    return $array;
   }
 }

@@ -9,7 +9,7 @@ function base64url_encode($str)
 }
 
 // Default secret and expiration (in seconds)
-function generate_jwt(array $payload, string $secret = 'secret', int $expire_in = 600): string
+function generate_jwt(array $payload, string $secret = 'secret', int $expire_in = 600000): string
 {
 	$headers = array('alg' => 'HS256', 'typ' => 'JWT');
 	$headers_encoded = base64url_encode(json_encode($headers));

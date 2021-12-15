@@ -8,33 +8,36 @@ function tracks_route(){
   $req_method = $_SERVER['REQUEST_METHOD'];
   
   $track = new Track();
+  define('ROUTENAME', 'tracks');
+  $last_path_element = url_get_last_element();
 
   switch ($req_method) {
     case 'GET':
-      $is_singular_get = isset($_GET['id']);
 
-      if($is_singular_get){
-        $id = $_GET['id'];
-        $results = $track->get_track($id);
-      }else{
+      // get all
+      if($last_path_element === ROUTENAME){
+        
         // TODO: pagination stuff
         $results = $track->get_all_tracks();
+      }else{
+        $results = $track->get_track($last_path_element);
       }
+
       echo json_encode($results);
 
       break;
 
     case 'POST':
-      $is_put_request = has_id_field('TrackId');
-
-      if($is_put_request) {
-        $results = $track->update_track($_POST);
-      }else{
+      // If id is not present in path it's a post
+      $is_post_request = $last_path_element === ROUTENAME;
+      
+      if($is_post_request) {
         $results = $track->create_track($_POST);
+      }else{
+        $results = $track->update_track($_POST);
       }
       
       echo json_encode($results);
-
       break;
       
     case 'PUT':
@@ -42,8 +45,7 @@ function tracks_route(){
       break;
 
     case 'DELETE':
-      $id = url_get_last_element();
-      $results = $track->delete_track($id);
+      $results = $track->delete_track($last_path_element);
       echo $results;
       break;
 

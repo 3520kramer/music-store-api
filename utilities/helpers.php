@@ -1,6 +1,6 @@
 <?php
 
-function get_url($index_root)
+function get_url($index_root = __DIR__)
 {
   // Get url without parameters
   $url = strtok($_SERVER['REQUEST_URI'], "?");
@@ -20,8 +20,8 @@ function get_url($index_root)
 }
 
 function url_get_last_element(){
-  $last_element = explode('/', $_SERVER['REQUEST_URI']);
-  return end($last_element);
+  $url = get_url();
+  return end($url);
 }
 
 // PHP doesn't allow column names to be inserted into prepared statements
