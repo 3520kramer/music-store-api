@@ -1,6 +1,7 @@
 <?php
 
-function get_url($index_root = __DIR__)
+// function get_url($index_root = __DIR__)
+function get_url(bool $remove_first_element = false): array
 {
   // Get url without parameters
   $url = strtok($_SERVER['REQUEST_URI'], "?");
@@ -10,16 +11,33 @@ function get_url($index_root = __DIR__)
 
   // Remove everything in the url which comes before the basedir
   // Allow the api to be deployed anywhere
-  $url = substr($url, strpos($url, basename($index_root)));
-  #$url = substr($url, strpos($url, basename(__DIR__)));
+  $url = substr($url, strpos($url, basename(ENV::$ROOT_DIR)));
+  #$url = substr($url, strpos($url, basename($index_root)));
 
   // Split the array by '/'
-  $urlPieces = explode('/', urldecode($url));
+  $url_pieces = explode('/', urldecode($url));
+
+  if ($remove_first_element) {
+    array_shift($url_pieces);
+  }
+    return $url_pieces;
   
-  return $urlPieces;
 }
 
-function url_get_last_element(){
+/* PHP can't handle indices access array with negative index by default */
+function url_get_path_element(int $position)
+{
+  $url_array = get_url();
+
+  if ($position < 0) {
+    return $url_array[count($url_array) - abs($position)];
+  } else {
+    return $url_array[$position];
+  }
+}
+
+function url_get_last_element()
+{
   $url = get_url();
   return end($url);
 }
@@ -38,10 +56,17 @@ function is_param_allowed($value, $allowed)
 
 // PHP does not handle PUT parameters explicitly. 
 // For this reason, they must be read from the request body’s raw data
-function get_put_body(){
-  return (array)json_decode(file_get_contents('php://input'),TRUE);
+function get_put_body()
+{
+  return (array)json_decode(file_get_contents('php://input'), TRUE);
 }
 
-function has_id_field(string $id_field_name = 'id'): bool{
+function has_id_field(string $id_field_name = 'id'): bool
+{
   return isset($_POST[$id_field_name]) ? true : false;
+}
+
+function base64url_encode($str): string
+{
+  return rtrim(strtr(base64_encode($str), '+/', '-_'), '=');
 }

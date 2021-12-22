@@ -37,3 +37,20 @@ select album.AlbumId as 'id', null as 'trackName', artist.Name as 'artistName', 
 from album 
 join artist using(ArtistId)
 where album.Title like 'metal%';
+
+-- Create invoice/order
+BEGIN;
+INSERT INTO `chinook_abridged`.`invoice`
+	(`CustomerId`, `InvoiceDate`, `BillingAddress`, `BillingCity`,
+		`BillingState`, `BillingCountry`, `BillingPostalCode`, `Total`)
+VALUES
+(1, NOW(), 'address', 'city', 'state','country',
+1234, 10);
+
+SELECT @order_id := LAST_INSERT_ID();
+
+INSERT INTO `chinook_abridged`.`invoiceline`
+(`InvoiceId`, `TrackId`, `UnitPrice`, `Quantity`)
+VALUES
+(@order_id, 1, 0.99, 1);
+COMMIT;

@@ -17,7 +17,8 @@ function authentication_route(){
       $pass = $_POST['password'] ?? null;
 
       if(!$email || !$pass) {
-        echo 'Error';
+        http_response_code(400);
+        echo json_encode('Error');
         return;
       }
 
@@ -34,6 +35,7 @@ function authentication_route(){
         }
 
         $jwt_payload['is_admin'] = false; // might not be needed
+        $jwt_payload['customer_id'] = $customer_info['CustomerId'];
         $jwt_payload['first_name'] = $customer_info['FirstName'];
         $jwt_payload['last_name'] = $customer_info['LastName'];
         
@@ -45,11 +47,11 @@ function authentication_route(){
           echo 'invalid password';
           return;
         }
-        
+        $jwt_payload['customer_id'] = 0;
         $jwt_payload['is_admin'] = true;
       };
 
-      $jwt = generate_jwt($jwt_payload);
+      $jwt = Authenticator::generate_jwt($jwt_payload);
       $json = json_encode(['token' => $jwt]);
       echo $json;
 

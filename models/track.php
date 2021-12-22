@@ -48,6 +48,37 @@ class Track extends Database
     return $results;
   }
 
+  public function get_tracks($ids)
+  {
+    // only allow digits and commas
+    if(!preg_match('/^[0-9]+(,[0-9]+)*$/', $ids)){
+      echo "no match";
+      return;
+    }
+
+  $query = <<< SQL
+      SELECT track.TrackId AS trackId, track.Name AS trackTitle, 
+        track.Composer AS trackComposer, track.Milliseconds AS trackTime, 
+        track.Bytes AS trackSize, track.UnitPrice AS trackPrice, 
+        genre.name AS trackGenre, mediatype.Name AS trackMediaType,
+        album.AlbumId AS albumId, album.Title AS albumName, 
+        artist.ArtistId AS artistId, artist.Name AS artistName
+      FROM track
+      JOIN album USING(AlbumId)
+      JOIN artist USING(ArtistId)
+      JOIN genre USING(GenreId)
+      JOIN mediatype USING(MediaTypeId)
+      WHERE Trackid in ($ids)
+    SQL;
+
+    $results = $this->get_all($query);
+
+    $results = $this->add_image_urls($results);
+
+    return $results;
+  }
+
+
   public function create_track($track)
   {
     $query = <<< SQL
@@ -93,7 +124,7 @@ class Track extends Database
   private function add_image_urls(array $array): array
   {
     $array = array_map(function ($result) use ($array){
-      $result = $this->image_fetch->get_album_art_url($array['albumName']);
+      $result['imgUrl'] = $this->image_fetch->get_album_art_url($result['albumName']);
       return $result;
     }, $array);
     return $array;

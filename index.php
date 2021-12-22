@@ -5,14 +5,20 @@ include_once __DIR__ . '/utilities/authenticate.php';
 include_once __DIR__ . '/routes/authentication.php';
 include_once __DIR__ . '/routes/tracks.php';
 include_once __DIR__ . '/routes/albums.php';
+include_once __DIR__ . '/routes/invoices.php';
+include_once __DIR__ . '/routes/customers.php';
 include_once __DIR__ . '/routes/account.php';
 include_once __DIR__ . '/routes/search.php';
+
 include_once __DIR__ . '/environment/my-env.php';
 
-// Initializing the static class with environment variables
-Env::set_env_vars();
+include_once __DIR__ . '/routes/customers-new.php';
 
-$url = get_url(__DIR__);
+
+// Initializing the static class with environment variables
+Env::set_env_vars(__DIR__);
+
+$url = get_url();
 
 // Show the API description if path is '/' i.e. only one item in array 
 if (count($url) === 1) {
@@ -28,20 +34,24 @@ header('Accept-version: v1');
 $headers = apache_request_headers();
 $auth_header = $headers['Authorization'] ?? null;
 
-if ($url[1] === 'auth') {
-  // Need to go to switch instead?
-  authentication_route();
-  return;
-} else if (is_null($auth_header) || !is_jwt_valid($auth_header)) {
-  http_response_code(401);
-  echo 'Not authorized';
-  return;
-}
+// if ($url[1] === 'auth') {
+//   // Need to go to switch instead?
+//   authentication_route();
+//   return;
+// } else if (is_null($auth_header) || !is_jwt_valid($auth_header)) {
+//   http_response_code(401);
+//   echo 'Not authorized';
+//   return;
+// }
 
 // Router
 switch ($url[1]) {
+  case 'customers':
+    $route = new CustomerRoute($url);
+    // $route->test();
+    // $route->handle_request();
+    break;
   case 'search':
-    #employees_route($req_method);
     search_route();
     break;
   case 'albums':
@@ -50,9 +60,14 @@ switch ($url[1]) {
   case 'tracks':
     tracks_route();
     break;
+  case 'invoices':
+    invoices_route();
+    break;
+  case 'customers':
+    customers_route();
+    break;
   case 'auth':
-    //sign_in_route();
-    echo 'Should never hit here - auth';
+    authentication_route();
     break;
   case 'account':
     account_route(__DIR__); #$req_method, $url[2]);

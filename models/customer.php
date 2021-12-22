@@ -4,11 +4,28 @@ include_once __DIR__ . '/../database/database.php';
 
 class Customer extends Database
 {
+  public function __construct()
+  {
+    parent::__construct();
+  }
+
+  function get_customer(int $id){
+    $query = <<< SQL
+      SELECT CustomerId, FirstName, LastName, Company, Address, City, 
+        State, Country, PostalCode, Phone, Fax, Email
+      FROM customer
+      WHERE CustomerId = :id
+    SQL;
+
+    $params = ['id' => $id];
+    $results = $this->get_one($query, $params);
+    return $results;
+  }
 
   function check_password($email, $password)
   {
     $query = <<<SQL
-      SELECT `Password`, `FirstName`, `LastName` from `customer` WHERE `Email` = :email;
+      SELECT CustomerId, Password, FirstName, LastName FROM customer WHERE `Email` = :email;
     SQL;
 
     $params = ['email' => $email];

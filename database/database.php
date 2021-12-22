@@ -15,6 +15,12 @@ class Database
     $this->db = $this->connect();
   }
 
+  public function __destruct()
+  {
+    $this->db = null;
+  }
+
+
   public function connect()
   {
     $host = ENV::$DB_HOST;
@@ -46,42 +52,41 @@ class Database
     $this->db = null;
   }
 
-  public function get_all(string $query, array $params = null, bool $reuse_params=false)
+  public function get_all(string $query, array $params = null, bool $reuse_params = false)
   {
     try {
       if ($params) {
-        if($reuse_params) $this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+        if ($reuse_params) $this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
         $stmt = $this->db->prepare($query);
 
         $stmt->execute($params);
 
         $results = $stmt->fetchAll();
-        
-        return $results;
 
-      }else {
+        return $results;
+      } else {
 
         $stmt = $this->db->query($query);
 
         $results = $stmt->fetchAll();
-        
+
         return $results;
       }
     } catch (Exception $e) {
       echo "ERROR fetching: \n$e";
     } finally {
-      if($reuse_params) $this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-      $this->db_disconnect();
+      if ($reuse_params) $this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+      // $this->db_disconnect();
     }
   }
 
   // Overloading is not possible in PHP - use if-else instead
-  public function get_one(string $query, array $params = null, bool $reuse_params=false)
+  public function get_one(string $query, array $params = null, bool $reuse_params = false)
   {
     try {
       if ($params) {
-        if($reuse_params) $this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+        if ($reuse_params) $this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
         $stmt = $this->db->prepare($query);
 
@@ -100,12 +105,12 @@ class Database
     } catch (Exception $e) {
       echo "ERROR fetching: \n$e";
     } finally {
-      if($reuse_params) $this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-      $this->db_disconnect();
+      if ($reuse_params) $this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+      // $this->db_disconnect();
     }
   }
 
-  public function create(string $query, array $params)
+  public function create(string $query, array $params): bool
   {
     try {
       $stmt = $this->db->prepare($query);
@@ -117,8 +122,9 @@ class Database
 
     } catch (Exception $e) {
       echo "ERROR fetching: \n$e";
+      return false;
     } finally {
-      $this->db_disconnect();
+      // $this->db_disconnect();
     }
   }
 
@@ -136,7 +142,7 @@ class Database
     } catch (Exception $e) {
       echo "ERROR fetching: \n$e";
     } finally {
-      $this->db_disconnect();
+      // $this->db_disconnect();
     }
   }
 
@@ -155,7 +161,7 @@ class Database
     } catch (Exception $e) {
       echo "ERROR fetching: \n$e";
     } finally {
-      $this->db_disconnect();
+      // $this->db_disconnect();
     }
   }
 }
