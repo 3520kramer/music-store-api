@@ -29,18 +29,7 @@ class Database
     $user = ENV::$DB_USER;
     $pwd = ENV::$DB_PWD;
     $charset = ENV::$DB_CHARSET;
-    // $host = "eu-cdbr-west-02.cleardb.net";
-    // $port = 3306;
-    // $db = "heroku_6937c2c658da355";
-    // $user = "b54ef9a7539001";
-    // $pwd = "2cb880c3";
-    // $charset = 'utf8mb4';
-    echo $host;
-    echo $port;
-    echo $db;
-    echo $user;
-    echo $pwd;
-    echo $charset;
+
 
     $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
     $options = [

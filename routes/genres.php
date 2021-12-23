@@ -21,15 +21,14 @@ class GenresRoute extends Route
 
   protected function handle_get()
   {
-    // // genres/
-    // if ($this->is_collection_request()) {
+    // genres/
+    if ($this->is_collection_request()) {
 
-    //   $results = $this->genre->get_all_genres();
-    //   echo json_encode($results);
-    //   return;
-    // }
-    // return $this->uri_not_found();
-    echo "WTF";
+      $results = $this->genre->get_all_genres();
+      echo json_encode($results);
+      return;
+    }
+    return $this->uri_not_found();
   }
 
   protected function handle_post()
