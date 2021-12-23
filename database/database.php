@@ -24,14 +24,25 @@ class Database
   public function connect()
   {
     $host = ENV::$DB_HOST;
-    $port = ENV::$DB_PWD;
+    $port = ENV::$DB_PORT;
     $db = ENV::$DB;
     $user = ENV::$DB_USER;
     $pwd = ENV::$DB_PWD;
     $charset = ENV::$DB_CHARSET;
+    // $host = "eu-cdbr-west-02.cleardb.net";
+    // $port = 3306;
+    // $db = "heroku_6937c2c658da355";
+    // $user = "b54ef9a7539001";
+    // $pwd = "2cb880c3";
+    // $charset = 'utf8mb4';
+    echo $host;
+    echo $port;
+    echo $db;
+    echo $user;
+    echo $pwd;
+    echo $charset;
 
     $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
-
     $options = [
       PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
       PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
