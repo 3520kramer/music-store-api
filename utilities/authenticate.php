@@ -21,7 +21,6 @@ class Authenticator
 		if ($validate_now) {
 			$this->validate_token();
 		}
-		echo $this->is_valid;
 	}
 
 	public function __get($property)

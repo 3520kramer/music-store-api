@@ -22,6 +22,45 @@ class Customer extends Database
     return $results;
   }
 
+  public function create_customer($customer)
+  {
+    $customer['Password'] = password_hash($customer['Password'], PASSWORD_DEFAULT);
+    $query = <<< SQL
+      INSERT INTO `customer` (
+        `FirstName`, `LastName`, `Password`, `Company`, `Address`, `City`,
+        `State`, `Country`, `PostalCode`, `Phone`, `Fax`, `Email`)
+      VALUES ( 
+        :FirstName, :LastName, :Password, :Company, :Address, :City,
+        :State, :Country, :PostalCode, :Phone, :Fax, :Email);
+    SQL;
+    
+    $is_success = $this->create($query, $customer);
+    return $is_success;
+  }
+
+  public function update_customer($customer)
+  {
+    $query = <<< SQL
+      UPDATE `customer`
+      SET
+      `FirstName` = :FirstName,
+      `LastName` = :LastName,
+      `Company` = :Company,
+      `Address` = :Address,
+      `City` = :City,
+      `State` = :State,
+      `Country` = :Country,
+      `PostalCode` = :PostalCode,
+      `Phone` = :Phone,
+      `Fax` = :Fax,
+      `Email` = :Email
+      WHERE `CustomerId` = :CustomerId;
+    SQL;
+
+    $is_success = $this->update($query, $customer);
+    return $is_success;
+  }
+
   function check_password($email, $password)
   {
     $query = <<<SQL

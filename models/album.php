@@ -14,17 +14,33 @@ class Album extends Database
     $this->image_fetch = new ImageUrlFetch();
   }
 
-  public function get_all_albums()
+  public function get_all_albums(string $artist_id = null)
   {
     $query = <<< SQL
-      SELECT * FROM album LIMIT 5
+      SELECT * FROM album 
     SQL;
 
-    $results = $this->get_all($query);
+    if (!is_null($artist_id)) {
+      $query .= ' WHERE ArtistId = :id';
+      $results = $this->get_all($query, ['id' => $artist_id]);
+      return $results;
+    } else {
+      $results = $this->get_all($query);
+      return $results;
+    }
+  }
+
+  public function get_album(string $album_id)
+  {
+    $query = <<< SQL
+        SELECT * FROM album WHERE AlbumId = :id
+      SQL;
+
+    $results = $this->get_one($query, ['id' => $album_id]);
     return $results;
   }
 
-  public function get_album($id)
+  public function get_album_with_tracks($id)
   {
     $query = <<< SQL
       SELECT track.TrackId AS trackId, track.Name AS trackTitle, 
@@ -45,7 +61,7 @@ class Album extends Database
 
     $results['tracks'] = $this->get_all($query, $params);
 
-    /* Format results */ 
+    /* Format results */
     $results['album'] = [
       "albumId" => $results['tracks'][0]['albumName'],
       "albumName" => $results['tracks'][0]['albumName'],
@@ -55,7 +71,7 @@ class Album extends Database
     ];
 
     $results['tracks'] = array_map(function ($result) {
-      
+
       return [
         "trackId" => $result['trackId'],
         "trackTitle" => $result['trackTitle']
@@ -63,5 +79,53 @@ class Album extends Database
     }, $results['tracks']);
 
     return $results;
+  }
+
+  public function get_artists_abums($id)
+  {
+    $query = <<< SQL
+      SELECT * FROM artist 
+      JOIN album USING(ArtistId)
+      WHERE ArtistId = :id
+    SQL;
+    $params = ['id' => $id];
+
+    $result = $this->get_one($query, $params);
+
+    return $result;
+  }
+
+  public function create_album($album)
+  {
+    $query = <<< SQL
+      INSERT INTO `album` (`Title`, `ArtistId`)
+      VALUES (:Title, :ArtistId)
+    SQL;
+
+    $is_success = $this->create($query, $album);
+    return $is_success;
+  }
+
+  public function update_album($album)
+  {
+    $query = <<< SQL
+      UPDATE `album`
+      SET `Title` = :Title, `ArtistId` = :ArtistId
+      WHERE `AlbumId` = :AlbumId
+    SQL;
+
+    $is_success = $this->update($query, $album);
+    return $is_success;
+  }
+
+  public function delete_album($id)
+  {
+    $query = <<< SQL
+          DELETE FROM `album` WHERE `AlbumId` = :id
+    SQL;
+
+    $params = ['id' => $id];
+    $is_success = $this->delete($query, $params);
+    return $is_success;
   }
 }

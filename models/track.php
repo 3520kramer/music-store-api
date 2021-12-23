@@ -29,7 +29,8 @@ class Track extends Database
       SELECT track.TrackId AS trackId, track.Name AS trackTitle, 
         track.Composer AS trackComposer, track.Milliseconds AS trackTime, 
         track.Bytes AS trackSize, track.UnitPrice AS trackPrice, 
-        genre.name AS trackGenre, mediatype.Name AS trackMediaType,
+        genre.GenreId as trackGenreId, genre.name AS trackGenre, 
+        mediatype.MediaTypeId as trackMediaTypeId, mediatype.Name AS trackMediaType,
         album.AlbumId AS albumId, album.Title AS albumName, 
         artist.ArtistId AS artistId, artist.Name AS artistName
       FROM track
@@ -97,8 +98,6 @@ class Track extends Database
 
   public function update_track($track)
   {
-    echo 'update <br>';
-    echo var_dump($track);
     $query = <<< SQL
       UPDATE `track`
       SET `Name` = :Name, `AlbumId` = :AlbumId, `MediaTypeId` = :MediaTypeId, `GenreId` = :GenreId, 

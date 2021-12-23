@@ -1,73 +1,82 @@
 <?php
 
+include_once __DIR__ . '/route.php';
 include_once __DIR__ . '/../models/customer.php';
 include_once __DIR__ . '/../models/invoice.php';
-include_once __DIR__ . '/../utilities/authenticate.php';
 
-function customers_route()
+class CustomerRoute extends Route
 {
-  $req_method = $_SERVER['REQUEST_METHOD'];
-  $customer = new Customer();
-  define('ROUTENAME', 'customers');
 
-  $auth = new Authenticator(true);
-  if (!$auth->is_valid) {
-    // ERROR HANDLING
-    echo"hey";
-    $auth->unauthorized_response();
+  private const COLLECTION =  'customers';
+  private const SUBCOLLECTION = 'invoices';
+  private $customer;
+
+  public function __construct()
+  {
+    parent::__construct(true);
+    $this->customer = new Customer();
+    $this->handle_request(false);
+  }
+
+  protected function handle_get()
+  {
+    // customers/
+    if ($this->is_collection_request()) {
+      return $this->uri_not_found();
+    }
+
+    // customers/{id}/
+    if ($this->is_resource_request()) {
+      $customer_id = intval($this->path_params[$this::COLLECTION]);
+
+      if ($this->is_customer_allowed($customer_id)) {
+        $results = $this->customer->get_customer($customer_id);
+        echo json_encode($results);
+        return;
+      }
+      return $this->unauthorized_response();
+    }
+
+    // customers/{id}/invoices/{id}/
+    if ($this->is_sub_resource_request()) {
+      $invoice = new Invoice();
+      $invoice_id = $this->path_params[$this::SUBCOLLECTION];
+      $customer_id = intval($this->path_params[$this::COLLECTION]);
+
+      if ($this->is_customer_allowed($customer_id)) {
+        $results = $invoice->get_invoice($invoice_id, $this->auth);
+        echo json_encode($results);
+        return;
+      }
+      return $this->unauthorized_response();
+    }
+    return $this->uri_not_found();
+  }
+
+  protected function handle_post()
+  {
+    $customer_id = $this->body['CustomerId'] ?? null;
+    $is_put_request = isset($customer_id);
+
+    if ($is_put_request) {
+      if ($this->is_customer_allowed($customer_id)) {
+        $results = $this->customer->update_customer($this->body);
+      }
+    } else {
+      $results = $this->customer->create_customer($this->body);
+    }
+
+    echo json_encode($results);
     return;
   }
 
-  switch ($req_method) {
-    case 'GET':
+  protected function handle_put()
+  {
+    return $this->method_not_allowed();
+  }
 
-      // get all - should probably not be possible
-      if (url_get_path_element(-1) === ROUTENAME) return;
-
-      // get by id
-      if (url_get_path_element(-2) === ROUTENAME) {
-        $customer_id = intval(url_get_path_element(-1));
-
-        // customer is only allowed to see their own information
-        if ($auth->customer_id === intval($customer_id) || $auth->is_admin) {
-          $results = $customer->get_customer($customer_id);
-
-          echo json_encode($results);
-          return;
-        }
-        // ERROR HANDLING
-        $auth->unauthorized_response();
-      }
-
-      // get invoices related to a customer
-      if (url_get_path_element(-2) === 'invoices') {
-        $invoice = new Invoice();
-
-        $customer_id = intval(url_get_path_element(-3));
-        $invoice_id = url_get_path_element(-1);
-
-
-        if ($auth->customer_id === intval($customer_id) || $auth->is_admin) {
-          $results = $invoice->get_invoice($invoice_id, $auth);
-
-          echo json_encode($results);
-          return;
-        }
-        // ERROR HANDLING
-        $auth->send_unauthorized_response();
-      }
-      break;
-    case 'POST':
-      $a = [];
-      //$results = $customer->create_invoice($_POST);
-
-      break;
-    case 'PUT':
-      break;
-    case 'DELETE':
-      break;
-
-    default:
-      echo 'Hit default in switch - error';
+  protected function handle_delete()
+  {
+    return $this->method_not_allowed();
   }
 }

@@ -1,37 +1,31 @@
 <?php
 include_once __DIR__ . '/route.php';
-include_once __DIR__ . '/../models/search.php';
+include_once __DIR__ . '/../models/genre.php';
 
-class SearchRoute extends Route
+class GenresRoute extends Route
 {
 
-  private const COLLECTION =  'search';
+  private const COLLECTION =  'genres';
   private const SUBCOLLECTION = '';
-  private $search;
+  private $genres;
 
   public function __construct()
   {
     parent::__construct(true);
-    $this->search = new Search();
+    $this->genre = new Genre();
     $this->handle_request(false);
   }
 
   protected function handle_get()
-  { 
-    // search?
-    if ($this->is_collection_query()) {
-      $search_value = $this->query_params['value'] ?? null;
+  {
+    // genres/
+    if ($this->is_collection_request()) {
 
-      if ($search_value) {
-        $results = $this->search->search($search_value);
-        echo json_encode($results);
-        return;
-      } else {
-        return $this->bad_request();
-      }
+      $results = $this->genre->get_all_genres();
+      echo json_encode($results);
+      return;
     }
     return $this->uri_not_found();
-
   }
 
   protected function handle_post()

@@ -1,7 +1,92 @@
 <?php
-
+include_once __DIR__ . '/route.php';
 include_once __DIR__ . '/../models/album.php';
 include_once __DIR__ . '/../utilities/helpers.php';
+
+
+class AlbumsRoute extends Route
+{
+
+  private const COLLECTION =  'albums';
+  private const SUBCOLLECTION = 'tracks';
+  private $album;
+
+  public function __construct()
+  {
+    parent::__construct(true);
+    $this->album = new Album();
+    $this->handle_request(false);
+  }
+
+  protected function handle_get()
+  {
+    // albums/
+    if ($this->is_collection_request()) {
+      $results = $this->album->get_all_albums();
+      echo json_encode($results);
+      return;
+    }
+
+    // albums/{id}/
+    if ($this->is_resource_request()) {
+      $album_id = intval($this->path_params[$this::COLLECTION]);
+      $result = $this->album->get_album($album_id);
+      echo json_encode($result);
+      return;
+    }
+    $search_value = $this->query_params['value'] ?? null;
+
+    // albums?
+    if ($this->is_collection_query()) {
+      $artist_id = $this->query_params['artistId'] ?? null;
+
+      if ($artist_id) {
+        $results = $this->album->get_all_albums($artist_id);
+        echo json_encode($results);
+        return;
+      } else {
+        return $this->bad_request();
+      }
+    }
+    // albums/{id}/tracks
+    if($this->is_sub_collection_request()){
+      $album_id = intval($this->path_params[$this::COLLECTION]);
+      $result = $this->album->get_album_with_tracks($album_id);
+      echo json_encode($result);
+    }
+    return $this->uri_not_found();
+  }
+
+  protected function handle_post()
+  {
+    if (!$this->has_admin_status()) return;
+
+    $is_put_request = isset($this->body['AlbumId']);
+
+    if ($is_put_request) {
+      $results = $this->album->update_album($this->body);
+    } else {
+      $results = $this->album->create_album($this->body);
+    }
+
+    echo json_encode($results);
+    return;
+  }
+
+  protected function handle_put()
+  {
+    return $this->method_not_allowed();
+  }
+
+  protected function handle_delete()
+  {
+    $album_id = intval($this->path_params[$this::COLLECTION]);
+    $results = $this->album->delete_album($album_id);
+    echo $results;
+    return;
+  }
+}
+
 
 function albums_route()
 {

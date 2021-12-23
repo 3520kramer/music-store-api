@@ -1,37 +1,31 @@
 <?php
 include_once __DIR__ . '/route.php';
-include_once __DIR__ . '/../models/search.php';
+include_once __DIR__ . '/../models/mediatype.php';
 
-class SearchRoute extends Route
+class MediaTypesRoute extends Route
 {
 
-  private const COLLECTION =  'search';
+  private const COLLECTION =  'mediatypes';
   private const SUBCOLLECTION = '';
-  private $search;
+  private $mediatype;
 
   public function __construct()
   {
     parent::__construct(true);
-    $this->search = new Search();
+    $this->mediatype = new MediaType();
     $this->handle_request(false);
   }
 
   protected function handle_get()
-  { 
-    // search?
-    if ($this->is_collection_query()) {
-      $search_value = $this->query_params['value'] ?? null;
+  {
+    // mediatypes/
+    if ($this->is_collection_request()) {
 
-      if ($search_value) {
-        $results = $this->search->search($search_value);
-        echo json_encode($results);
-        return;
-      } else {
-        return $this->bad_request();
-      }
+      $results = $this->mediatype->get_all_mediatypes();
+      echo json_encode($results);
+      return;
     }
     return $this->uri_not_found();
-
   }
 
   protected function handle_post()

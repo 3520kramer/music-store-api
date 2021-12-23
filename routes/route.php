@@ -3,6 +3,7 @@
 abstract class Route
 {
   protected $auth;
+  protected $url_array;
   protected $req_method;
   protected $query_params;
   protected $path_params;
@@ -45,6 +46,7 @@ abstract class Route
         break;
 
       case $this::PUT:
+        echo 'PLEASE USE POST - But include id';
         $this->handle_put();
         break;
 
@@ -53,7 +55,7 @@ abstract class Route
         break;
 
       default:
-        echo 'error';
+        $this->method_not_allowed();
     }
   }
 
@@ -78,7 +80,19 @@ abstract class Route
   // note: admin is allowed on all routes
   protected function is_customer_allowed($id)
   {
-    if ($this->auth->customer_id === intval($id) || $this->auth->is_admin) {
+    if ($this->auth->is_valid && (
+          $this->auth->customer_id === intval($id) || $this->auth->is_admin)){
+      return true;
+    } else {
+      $this->unauthorized_response();
+      return false;
+    }
+  }
+
+  // used to restrict other than admins access on certain routes
+  protected function has_admin_status()
+  {
+    if ($this->auth->is_admin) {
       return true;
     } else {
       $this->unauthorized_response();
@@ -88,7 +102,12 @@ abstract class Route
 
   protected function is_collection_request()
   {
-    return count($this->url_array) === 1;
+    return count($this->url_array) === 1 && empty($this->query_params);
+  }
+
+  protected function is_collection_query()
+  {
+    return count($this->url_array) === 1 && !empty($this->query_params);
   }
 
   protected function is_resource_request()
@@ -106,9 +125,14 @@ abstract class Route
     return count($this->url_array) === 4;
   }
 
-  protected function method_not_allowed()
+  protected function bad_request()
   {
-    return http_response_code(405);
+    return http_response_code(400);
+  }
+
+  protected function unauthorized_response()
+  {
+    return http_response_code(401);
   }
 
   protected function uri_not_found()
@@ -116,9 +140,9 @@ abstract class Route
     return http_response_code(404);
   }
 
-  public function unauthorized_response()
+  protected function method_not_allowed()
   {
-    return http_response_code(401);
+    return http_response_code(405);
   }
 
   /* OLD */

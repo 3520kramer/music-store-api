@@ -1,62 +1,83 @@
 <?php
-
+include_once __DIR__ . '/route.php';
 include_once __DIR__ . '/../models/track.php';
 include_once __DIR__ . '/../utilities/helpers.php';
 
-function tracks_route()
+class TracksRoute extends Route
 {
-  // Get the request method
-  $req_method = $_SERVER['REQUEST_METHOD'];
 
-  $track = new Track();
-  define('ROUTENAME', 'tracks');
-  $last_path_element = url_get_last_element();
+  private const COLLECTION =  'tracks';
+  private const SUBCOLLECTION = '';
+  private $invoice;
 
-  switch ($req_method) {
-    case 'GET':
+  public function __construct()
+  {
+    parent::__construct(true);
+    $this->track = new Track();
+    $this->handle_request(false);
+  }
 
-      // get all
-      if ($last_path_element === ROUTENAME) {
-        $query_params = $_GET ?? null;
-        $ids = $query_params['ids'] ?? null;
-
-        if (!$query_params) {
-          // TODO: pagination stuff
-          $results = $track->get_all_tracks();
-        } else if (isset($ids)) {
-          $results = $track->get_tracks($ids);
-        }
-      } else {
-        $results = $track->get_track($last_path_element);
-      }
-
+  protected function handle_get()
+  {
+    // tracks/
+    if ($this->is_collection_request()) {
+      $results = $this->track->get_all_tracks();
       echo json_encode($results);
+      return;
+    }
 
-      break;
+    // tracks/{id}/
+    if ($this->is_resource_request()) {
+      $track_id = intval($this->path_params[$this::COLLECTION]);
+      $result = $this->track->get_track($track_id);
 
-    case 'POST':
-      // If id is not present in path it's a post
-      $is_post_request = $last_path_element === ROUTENAME;
+      echo json_encode($result);
+      return;
+    }
 
-      if ($is_post_request) {
-        $results = $track->create_track($_POST);
+    // tracks?
+    if ($this->is_collection_query()) {
+      $ids = $this->query_params['ids'] ?? null;
+
+      if (isset($ids)) {
+        $results = $this->track->get_tracks($ids);
+        echo json_encode($results);
+        return;
       } else {
-        $results = $track->update_track($_POST);
+        return $this->bad_request();
       }
+    }
+    return $this->uri_not_found();
+  }
 
-      echo json_encode($results);
-      break;
+  protected function handle_post()
+  {
+    if (!$this->has_admin_status()) return;
 
-    case 'PUT':
-      echo 'PLEASE USE POST - But include id';
-      break;
+    $is_put_request = isset($this->body['TrackId']);
 
-    case 'DELETE':
-      $results = $track->delete_track($last_path_element);
-      echo $results;
-      break;
+    if ($is_put_request) {
+      $results = $this->track->update_track($this->body);
+    } else {
+      $results = $this->track->create_track($this->body);
+    }
 
-    default:
-      echo 'Hit default in switch - error';
+    echo json_encode($results);
+    return;
+  }
+
+  protected function handle_put()
+  {
+    return $this->method_not_allowed();
+  }
+
+  protected function handle_delete()
+  {
+    if (!$this->has_admin_status()) return;
+
+    $track_id = intval($this->path_params[$this::COLLECTION]);
+    $results = $this->track->delete_track($track_id);
+    echo $results;
+    return;
   }
 }
