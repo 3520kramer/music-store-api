@@ -19,6 +19,7 @@ include_once __DIR__ . '/environment/my-env.php';
 // Initializing the static class with environment variables
 Env::set_env_vars(__DIR__);
 
+echo ENV::$DB;
 $url = get_url();
 var_dump($url);
 
