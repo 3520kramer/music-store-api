@@ -63,6 +63,7 @@ switch ($url[1]) {
     new MediaTypesRoute();
     break;
   case 'genres':
+    echo "in genre route";
     new GenresRoute();
     break;
   case 'account':

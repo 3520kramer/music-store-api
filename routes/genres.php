@@ -2,6 +2,9 @@
 include_once __DIR__ . '/route.php';
 include_once __DIR__ . '/../models/genre.php';
 
+function test(){
+  echo "in test function";
+}
 class GenresRoute extends Route
 {
 
