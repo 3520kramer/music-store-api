@@ -29,7 +29,7 @@ if (count($url) === 1) {
 // Sets the headers of the responses
 header('Content-Type: application/json');
 header('Accept-version: v1');
-header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Origin: ". ENV::$HOST);
 
 /* AUTHORISAITION */
 $headers = apache_request_headers();
