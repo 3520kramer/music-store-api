@@ -2,8 +2,4 @@ RewriteEngine On
 # RewriteBase /
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_URI} !/css
-RewriteCond %{REQUEST_URI} !/images
-RewriteCond %{REQUEST_URI} !/js
-
-RewriteRule ^([^/]+)/? index.php?url=$1 [L,QSA]
+RewriteRule ^ index.php [QSA,L]
