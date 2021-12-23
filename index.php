@@ -23,6 +23,9 @@ echo ENV::$DB;
 $url = get_url();
 var_dump($url);
 
+$a = new Genre();
+$b = $a->get_all_genres();
+echo json_encode($b);
 // Show the API description if path is '/' i.e. only one item in array 
 if (count($url) === 1) {
   echo 'Show API description';
