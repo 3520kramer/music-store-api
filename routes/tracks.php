@@ -8,11 +8,11 @@ class TracksRoute extends Route
 
   private const COLLECTION =  'tracks';
   private const SUBCOLLECTION = '';
-  private $invoice;
+  private $track;
 
   public function __construct()
   {
-    parent::__construct(true);
+    parent::__construct(false);
     $this->track = new Track();
     $this->handle_request(false);
   }

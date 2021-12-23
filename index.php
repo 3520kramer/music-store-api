@@ -8,7 +8,6 @@ include_once __DIR__ . '/routes/albums.php';
 include_once __DIR__ . '/routes/artists.php';
 include_once __DIR__ . '/routes/invoices.php';
 include_once __DIR__ . '/routes/customers.php';
-include_once __DIR__ . '/routes/account.php';
 include_once __DIR__ . '/routes/search.php';
 include_once __DIR__ . '/routes/mediatypes.php';
 include_once __DIR__ . '/routes/genres.php';
@@ -63,9 +62,6 @@ switch ($url[1]) {
     break;
   case 'genres':
     new GenresRoute();
-    break;
-  case 'account':
-    account_route(__DIR__); #$req_method, $url[2]);
     break;
   default:
     // Show bad format message if it's not the right collection

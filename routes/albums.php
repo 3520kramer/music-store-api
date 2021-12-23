@@ -34,7 +34,6 @@ class AlbumsRoute extends Route
       echo json_encode($result);
       return;
     }
-    $search_value = $this->query_params['value'] ?? null;
 
     // albums?
     if ($this->is_collection_query()) {
