@@ -1,6 +1,7 @@
 <?php
 include_once __DIR__ . '/route.php';
 include_once __DIR__ . '/../models/genre.php';
+echo "WTF";
 
 class GenresRoute extends Route
 {
@@ -11,21 +12,22 @@ class GenresRoute extends Route
 
   public function __construct()
   {
-    parent::__construct(true);
-    $this->genre = new Genre();
-    $this->handle_request(false);
+    // parent::__construct(true);
+    // $this->genre = new Genre();
+    // $this->handle_request(false);
   }
 
   protected function handle_get()
   {
-    // genres/
-    if ($this->is_collection_request()) {
+    // // genres/
+    // if ($this->is_collection_request()) {
 
-      $results = $this->genre->get_all_genres();
-      echo json_encode($results);
-      return;
-    }
-    return $this->uri_not_found();
+    //   $results = $this->genre->get_all_genres();
+    //   echo json_encode($results);
+    //   return;
+    // }
+    // return $this->uri_not_found();
+    echo "WTF";
   }
 
   protected function handle_post()

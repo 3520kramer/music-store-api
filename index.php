@@ -21,6 +21,7 @@ Env::set_env_vars(__DIR__);
 
 $url = get_url();
 var_dump($url);
+
 // Show the API description if path is '/' i.e. only one item in array 
 if (count($url) === 1) {
   echo 'Show API description';
